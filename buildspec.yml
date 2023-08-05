@@ -1,0 +1,72 @@
+#--------------------------------------------------------------
+# Simple AWS CodeBuild Config File
+#
+# Copyleft (c) by Denis Astahov
+#--------------------------------------------------------------
+version: 0.2
+
+env:
+  variables:
+    AWS_DEFAULT_REGION: "eu-central-1"
+    AWS_ACCOUNT_ID    : "012409364995"
+    AWS_CLUSTER_NAME  : "stocks-cluster"
+    IMAGE_REPO_NAME   : "stocksauth_001"
+    IMAGE_TAG         : "latest"
+    DEPLOYMENT_NAME   : "stocksauth_deployment"
+    CONTAINER_NAME    : $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+
+
+phases:
+  install:
+    commands:
+      - echo "Check aws and git version"
+      - aws --version
+      - git --version
+
+      - echo "Login to AWS ECR and get commit id"
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION| docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - COMMIT_ID=$(git rev-parse --short HEAD)
+      - echo "Installing necessary library…"
+      - curl -Lo aws-iam-authenticator https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v0.6.10/aws-iam-authenticator_0.6.10_linux_amd64
+      - chmod +x ./aws-iam-authenticator
+      - mkdir -p ~/bin && cp ./aws-iam-authenticator ~/bin/aws-iam-authenticator && export PATH=~/bin:$PATH
+      - curl -LO https://dl.k8s.io/release/`curl -LS https://dl.k8s.io/release/stable.txt`/bin/linux/amd64/kubectl
+      - curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+      - echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+      - chmod +x kubectl
+      - mkdir -p ~/.local/bin
+      - sudo mv ./kubectl ~/.local/bin/kubectl
+      - curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+      - chmod 700 get_helm.sh
+      - ./get_helm.sh
+
+  pre_build:
+    commands:
+      - echo "Update kubeconfig…"
+      - aws eks update-kubeconfig --name $AWS_CLUSTER_NAME --region $AWS_DEFAULT_REGION
+      - kubectl version --client
+
+  build:
+    commands:
+      - echo Building the Docker image...
+      - mvn package
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$COMMIT_ID
+
+  post_build:
+    commands:
+      - echo Pushing the Docker image...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$COMMIT_ID
+
+      - echo Rollout new version
+
+      - aws sts get-caller-identity
+      - aws eks update-kubeconfig --name $AWS_CLUSTER_NAME --region $AWS_DEFAULT_REGION
+      - kubectl config view
+      - echo kubectl set image deployment/$DEPLOYMENT_NAME nginx=$CONTAINER_NAME
+      - "kubectl set image deployment/$DEPLOYMENT_NAME nginx=$CONTAINER_NAME"
+
+#      - kubectl create deployment hello-minikube --image=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+#      - kubectl delete services hello-minikube
