@@ -1,0 +1,12 @@
+version: '1'
+services:
+  db:
+    image: postgres:12.16
+    command: [ "postgres","-c","log_statement=all" ]
+    restart: always
+    environment:
+      POSTGRES_DB: stocksAuth
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    ports:
+      - '55432:5432'
