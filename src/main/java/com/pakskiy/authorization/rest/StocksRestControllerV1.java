@@ -1,4 +1,4 @@
-package com.pakskiy.authorization.controller;
+package com.pakskiy.authorization.rest;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/private")
 @RequiredArgsConstructor
-public class StocksController {
+public class StocksControllerV1 {
 
-    @GetMapping("/list")
+    @GetMapping("/stocks")
     public String list() {
         return "Stocks list controller!";
     }

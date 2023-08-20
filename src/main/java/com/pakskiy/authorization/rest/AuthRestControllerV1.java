@@ -3,7 +3,7 @@ package com.pakskiy.authorization.controller;
 import com.pakskiy.authorization.dto.LoginRequestDto;
 import com.pakskiy.authorization.dto.LoginResponseDto;
 import com.pakskiy.authorization.dto.RegisterRequestDto;
-import com.pakskiy.authorization.service.AuthService;
+import com.pakskiy.authorization.service.AuthServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/public")
 @RequiredArgsConstructor
 public class AuthController {
-    private final AuthService authService;
+    private final AuthServiceImpl authServiceImpl;
 
     @GetMapping("/status")
     public String status() {
@@ -22,12 +22,12 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<Void> register(@RequestBody @Validated RegisterRequestDto request) {
-        authService.register(request);
+        authServiceImpl.register(request);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody @Validated LoginRequestDto request) {
-        return ResponseEntity.ok(authService.login(request));
+        return ResponseEntity.ok(authServiceImpl.login(request));
     }
 }
