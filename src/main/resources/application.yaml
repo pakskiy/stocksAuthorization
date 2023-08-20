@@ -26,6 +26,9 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+app:
+  secret-key: ${SECRET_KEY}
+  issuer: ${ISSUER}
 logging:
   level:
     root: INFO

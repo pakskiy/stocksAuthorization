@@ -30,6 +30,7 @@ public class SecurityConfig {
                 .and()
                 .authorizeHttpRequests(auth->{
                     auth.requestMatchers("/").permitAll();
+                    auth.requestMatchers("/error").permitAll();
                     auth.requestMatchers("/favicon.ico").permitAll();
                     auth.requestMatchers(GET,"/api/v1/public/**").permitAll();
                     auth.requestMatchers(POST,"/api/v1/public/**").permitAll();
@@ -37,8 +38,6 @@ public class SecurityConfig {
                 })
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                //.oauth2Login(withDefaults())
-                //.formLogin(withDefaults())
                 .build();
     }
 }
