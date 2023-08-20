@@ -1,5 +1,6 @@
 package com.pakskiy.authorization.model;
 
+import com.pakskiy.authorization.dto.RegisterResponseDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -54,5 +55,13 @@ public class User implements UserDetails {
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return null;
+	}
+
+	public RegisterResponseDto getRegisterResponseDto(){
+		return RegisterResponseDto.builder()
+				.id(id)
+				.username(username)
+				.email(email)
+				.build();
 	}
 }
