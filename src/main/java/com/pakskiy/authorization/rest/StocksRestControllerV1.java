@@ -6,10 +6,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/private")
 @RequiredArgsConstructor
-public class StocksControllerV1 {
+public class StocksRestControllerV1 {
 
     @GetMapping("/stocks")
-    public String list() {
+    public String stocks() {
         return "Stocks list controller!";
     }
 
