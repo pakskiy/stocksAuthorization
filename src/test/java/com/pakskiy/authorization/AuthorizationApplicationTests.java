@@ -68,33 +68,21 @@ class AuthorizationApplicationTests {
     }
 
     @Test
-    void checkUserRegistration(){
+    void checkUserRegistrationAndLogin(){
         RegisterResponseDto registerResponseDto = authService.register(RegisterRequestDto.builder()
                 .username(USERNAME)
                 .email(EMAIL)
                 .password(PASSWORD)
                 .build());
 
-        assertEquals("testuser@gmail.com", registerResponseDto.getEmail());
+        assertEquals(EMAIL, registerResponseDto.getEmail());
 
-//        LoginResponseDto loginResponseDto = authService.login(LoginRequestDto.builder()
-//                .email(EMAIL)
-//                .password(PASSWORD)
-//                .build());
-//
-//        assertTrue(loginResponseDto.getToken().length()>0);
-    }
+        LoginResponseDto loginResponseDto = authService.login(LoginRequestDto.builder()
+                .email(EMAIL)
+                .password(PASSWORD)
+                .build());
 
-    @Test
-    void checkLoginUser(){
+        assertTrue(loginResponseDto.getToken().length()>0);
 
     }
-
-
-
-//    @Test
-//    void checkRegisterMethod(){
-//        authControllerTest.register();
-//    }
-
 }

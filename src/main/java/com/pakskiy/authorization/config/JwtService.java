@@ -24,10 +24,10 @@ import java.util.function.Function;
 @Slf4j
 public class JwtService {
     @Value("${app.secret-key}")
-    private static String SECRET_KEY;
+    private String SECRET_KEY;
 
     @Value("${app.issuer}")
-    private static String ISSUER;
+    private String ISSUER;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
