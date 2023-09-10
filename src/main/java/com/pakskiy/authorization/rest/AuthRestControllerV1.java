@@ -23,8 +23,7 @@ public class AuthRestControllerV1 {
 
     @PostMapping("/register")
     public ResponseEntity<RegisterResponseDto> register(@RequestBody @Valid RegisterRequestDto request) {
-        authServiceImpl.register(request);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(authServiceImpl.register(request));
     }
 
     @PostMapping("/login")
